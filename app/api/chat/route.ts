@@ -1,30 +1,59 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest, NextResponse } from 'next/server';
+import { LoanOrchestrator } from '@/lib/orchestrator/orchestrator';
 
-export async function POST(req: NextRequest) {
-  const body = await req.json().catch(() => null);
+// Store orchestrators in memory (in production, use Redis or database)
+const orchestrators = new Map<string, LoanOrchestrator>();
 
-  if (!body?.messages) {
+export async function POST(request: NextRequest) {
+  try {
+    const body = await request.json();
+    const { message, sessionId } = body;
+
+    if (!message) {
+      return NextResponse.json(
+        { error: 'Message is required' },
+        { status: 400 }
+      );
+    }
+
+    // Get or create orchestrator for this session
+    const session = sessionId || 'default';
+    let orchestrator = orchestrators.get(session);
+    
+    if (!orchestrator) {
+      orchestrator = new LoanOrchestrator();
+      orchestrators.set(session, orchestrator);
+    }
+
+    // Process the message
+    const response = await orchestrator.processMessage(message);
+
+    // Get current context
+    const context = orchestrator.getContext();
+
+    return NextResponse.json({
+      response,
+      context: {
+        currentStage: context.currentStage,
+        applicationId: context.applicationId,
+        customerId: context.customerId
+      }
+    });
+  } catch (error: any) {
+    console.error('[API] Error:', error);
     return NextResponse.json(
-      { error: "Invalid payload" },
-      { status: 400 }
+      { error: error.message || 'Internal server error' },
+      { status: 500 }
     );
   }
+}
 
-  const last = body.messages[body.messages.length - 1];
-  const prevStage = (body.stage ?? "intro") as
-    | "intro"
-    | "verification"
-    | "underwriting"
-    | "offer";
-
-  // dumb stage progression for now – just to test UI
-  let nextStage = prevStage;
-  if (prevStage === "intro") nextStage = "verification";
-  else if (prevStage === "verification") nextStage = "underwriting";
-  else if (prevStage === "underwriting") nextStage = "offer";
-
+export async function GET() {
   return NextResponse.json({
-    reply: `Echo: ${last.content}\n\n(Mock response – stage: ${nextStage})`,
-    stage: nextStage,
+    status: 'ok',
+    message: 'Loan Processing API is running',
+    endpoints: {
+      chat: 'POST /api/chat'
+    }
   });
 }
