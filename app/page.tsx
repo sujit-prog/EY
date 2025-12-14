@@ -26,9 +26,6 @@ export default function LandingPage() {
             <a href="#how-it-works" className="hover:text-slate-100">
               How it works
             </a>
-            <a href="#features" className="hover:text-slate-100">
-              Features
-            </a>
             <a href="#security" className="hover:text-slate-100">
               Security
             </a>
@@ -37,6 +34,12 @@ export default function LandingPage() {
               className="rounded-full border border-emerald-300/60 bg-emerald-500/10 px-4 py-1.5 text-sm font-medium text-emerald-200 hover:bg-emerald-400/20"
             >
               Launch chat
+            </Link>
+              <Link
+              href="/signin/"
+              className="rounded-full border border-emerald-300/60 bg-emerald-500/10 px-4 py-1.5 text-sm font-medium text-emerald-200 hover:bg-emerald-400/20"
+            >
+              Signin/Signup
             </Link>
           </nav>
         </div>
@@ -70,9 +73,7 @@ export default function LandingPage() {
             >
               Start your loan journey
             </Link>
-            <button className="text-sm text-slate-300 hover:text-slate-100">
-              View demo journey →
-            </button>
+           
           </div>
 
           {/* Stats */}
@@ -173,7 +174,7 @@ export default function LandingPage() {
                     Hi! Let’s check your home loan eligibility. What’s your
                     monthly income?
                   </div>
-                  <div className="ml-auto max-w-[80%] rounded-2xl bg-emerald-500 px-3 py-2 text-right text-slate-950">
+                  <div className="ml-auto max-w-[40%] rounded-2xl bg-emerald-500 px-3 py-2 text-right text-slate-950">
                     Around ₹80,000 with fixed salary.
                   </div>
                   <div className="max-w-[80%] rounded-2xl bg-slate-800 px-3 py-2 text-slate-100">
