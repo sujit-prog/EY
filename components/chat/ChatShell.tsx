@@ -1,92 +1,148 @@
-"use client";
+import { useEffect, useRef } from "react";
+import { StageIndicator } from "./StageIndicator";
+import { MessageBubble } from "./MessageBubble";
 
-import { RefObject, KeyboardEvent } from "react";
-import { ChatMessage, Stage } from "@/app/loan/chat/page";
-import MessageBubble from "./MessageBubble";
-import StageIndicator from "./StageIndicator";
-import SuggestionChips from "./SuggestionChips";
-import TypingIndicator from "./TypingIndicator";
+interface ChatMessage {
+  id: string;
+  role: "user" | "assistant" | "system";
+  content: string;
+  timestamp?: string;
+  isError?: boolean;
+}
 
 interface ChatShellProps {
   messages: ChatMessage[];
   input: string;
-  onInputChange: (v: string) => void;
-  onSend: (text: string) => void;
+  setInput: (value: string) => void;
+  sendMessage: () => void;
   isLoading: boolean;
-  stage: Stage;
   suggestions: string[];
-  error: string | null;
-  messagesEndRef: RefObject<HTMLDivElement>;
+  onSuggestionClick: (text: string) => void;
+  currentStage: "chat" | "verification" | "underwriting";
+  lowLevelError?: string | null;
 }
 
-export default function ChatShell({
+export function ChatShell({
   messages,
   input,
-  onInputChange,
-  onSend,
+  setInput,
+  sendMessage,
   isLoading,
-  stage,
   suggestions,
-  error,
-  messagesEndRef,
+  onSuggestionClick,
+  currentStage,
+  lowLevelError,
 }: ChatShellProps) {
-  const handleKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
+  const scrollRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    }
+  }, [messages, isLoading]);
+
+  const handleKeyDown: React.KeyboardEventHandler<HTMLTextAreaElement> = (
+    e
+  ) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
-      onSend(input);
+      if (!isLoading && input.trim()) sendMessage();
     }
   };
 
   return (
-    <div className="flex h-[calc(100vh-96px)] flex-col rounded-2xl border bg-white shadow-sm">
-      <StageIndicator stage={stage} />
+    <div className="flex min-h-screen items-center justify-center bg-slate-950 px-4 py-8">
+      <div className="relative w-full max-w-3xl rounded-3xl border border-white/10 bg-slate-900/80 p-4 shadow-2xl backdrop-blur">
+        {/* Glow */}
+        <div className="pointer-events-none absolute -inset-1 rounded-3xl bg-gradient-to-tr from-emerald-500/20 via-transparent to-sky-500/20 blur-3xl" />
 
-      {error && (
-        <div className="mx-4 mt-2 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-700">
-          {error}
-        </div>
-      )}
+        {/* Content */}
+        <div className="relative flex flex-col gap-3">
+          {/* Header */}
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-semibold text-slate-50">
+                Loan Assistant
+              </p>
+              <p className="text-[11px] text-slate-400">
+                Chat your way from eligibility to approval.
+              </p>
+            </div>
+            <span className="rounded-full bg-emerald-500/15 px-3 py-1 text-[11px] text-emerald-200">
+              Connected to backend
+            </span>
+          </div>
 
-      <div className="mt-2 flex-1 overflow-y-auto px-4 py-3 space-y-2">
-        {messages.map((m) => (
-          <MessageBubble key={m.id} message={m} />
-        ))}
+          {/* Stage Indicator */}
+          <StageIndicator currentStage={currentStage} />
 
-        {isLoading && <TypingIndicator />}
-
-        <div ref={messagesEndRef} />
-      </div>
-
-      <div className="border-t px-4 py-3 space-y-2">
-        <SuggestionChips
-          suggestions={suggestions}
-          disabled={isLoading}
-          onClick={(s) => onSend(s)}
-        />
-
-        <div className="flex items-end gap-2">
-          <textarea
-              className="flex-1 resize-none rounded-lg border px-3 py-2 text-sm text-black placeholder-neutral-800 outline-none focus:ring-1 focus:ring-sky-800"
-            rows={2}
-            placeholder="Type your question or ask to start verification…"
-            value={input}
-            disabled={isLoading}
-            onChange={(e) => onInputChange(e.target.value)}
-            onKeyDown={handleKeyDown}
-          />
-          <button
-            className="inline-flex h-9 items-center rounded-lg bg-sky-600 px-4 text-sm font-medium text-white disabled:opacity-50"
-            disabled={!input.trim() || isLoading}
-            onClick={() => onSend(input)}
+          {/* Chat area */}
+          <div
+            ref={scrollRef}
+            className="mt-2 flex max-h-[420px] flex-col gap-2 overflow-y-auto rounded-2xl bg-slate-950/60 p-3"
           >
-            Send
-          </button>
-        </div>
+            {messages.map((m) => (
+              <MessageBubble
+                key={m.id}
+                role={m.role}
+                text={m.content}
+                timestamp={m.timestamp}
+                isError={m.isError}
+              />
+            ))}
 
-        <p className="text-[11px] text-slate-400">
-          This is a demo experience. Please don’t share real personal
-          information.
-        </p>
+            {isLoading && (
+              <div className="flex justify-start">
+                <div className="flex items-center gap-2 rounded-2xl bg-slate-800/90 px-3 py-2 text-[11px] text-slate-300">
+                  <span className="h-2 w-2 animate-pulse rounded-full bg-emerald-400" />
+                  Thinking…
+                </div>
+              </div>
+            )}
+
+            {lowLevelError && (
+              <div className="mt-2 text-center text-[11px] text-red-300">
+                {lowLevelError}
+              </div>
+            )}
+          </div>
+
+          {/* Suggestion chips */}
+          {suggestions.length > 0 && (
+            <div className="flex flex-wrap gap-2 text-[11px]">
+              {suggestions.map((s) => (
+                <button
+                  key={s}
+                  type="button"
+                  onClick={() => onSuggestionClick(s)}
+                  className="rounded-full border border-slate-600 bg-slate-900 px-3 py-1 text-slate-300 hover:border-emerald-400 hover:text-emerald-200"
+                >
+                  {s}
+                </button>
+              ))}
+            </div>
+          )}
+
+          {/* Composer */}
+          <div className="flex items-end gap-2 rounded-2xl border border-slate-700 bg-slate-950/80 px-3 py-2">
+            <textarea
+              rows={1}
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyDown={handleKeyDown}
+              placeholder="Ask about your loan eligibility, documents, or approval…"
+              className="h-10 flex-1 resize-none bg-transparent text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none"
+            />
+            <button
+              type="button"
+              onClick={sendMessage}
+              disabled={!input.trim() || isLoading}
+              className="inline-flex h-9 items-center rounded-full bg-emerald-400 px-4 text-xs font-semibold text-slate-950 disabled:cursor-not-allowed disabled:bg-slate-600"
+            >
+              {isLoading ? "Sending…" : "Send"}
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   );
