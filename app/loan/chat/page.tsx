@@ -25,8 +25,8 @@ export default function ChatPage() {
       id: crypto.randomUUID(),
       role: "assistant",
       content:
-        "Hi, I’m your Tata Capital AI Loan Expert. I will guide you step-by-step. To begin, what loan amount are you looking for?",
-      createdAt: Date.now(),
+        "Hi! I’m your loan assistant. Tell me a bit about your income and goals, and I’ll guide you through eligibility → verification → approval.",
+      timestamp: new Date().toLocaleTimeString(),
     },
   ]);
 
