@@ -181,7 +181,7 @@ export default function LandingPage() {
                     Great. Based on your details, you may be eligible up to
                     <span className="font-semibold text-emerald-300">
                       {" "}
-                      ₹32L
+                      Rs.32L
                     </span>
                     . Let’s verify your documents next.
                   </div>
