@@ -1,7 +1,21 @@
-// lib/memory.ts
+export type Stage = 
+  | "welcome" 
+  | "phone_request" 
+  | "otp_verification" 
+  | "discovery" 
+  | "sales" 
+  | "verification" 
+  | "underwriting" 
+  | "sanctioned" 
+  | "rejected"
 
-export type Stage = "welcome" | "otp_verification" | "discovery" | "sales" | "verification" | "underwriting" | "sanctioned" | "rejected"
-export type ActiveAgent = "welcome" | "master" | "sales" | "verification" | "underwriting" | "sanction"
+export type ActiveAgent = 
+  | "welcome" 
+  | "master" 
+  | "sales" 
+  | "verification" 
+  | "underwriting" 
+  | "sanction"
 
 export interface ConversationMessage {
   role: "user" | "assistant"
@@ -26,8 +40,10 @@ export interface ChatMemory {
   expectedOTP?: string
   otpVerified?: boolean
   phoneAsked?: boolean
+  welcomed?: boolean
+  verificationStarted?: boolean
   
-  // User profile (loaded after OTP)
+  // User profile
   userProfile?: {
     name: string
     age: number
@@ -43,6 +59,7 @@ export interface ChatMemory {
   // Discovery phase (Master Agent)
   userName?: string
   loanType?: "personal" | "car" | "home" | "education"
+  loanPurpose?: string
   amount?: number
   purpose?: string
   

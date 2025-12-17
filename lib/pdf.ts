@@ -1,4 +1,3 @@
-// lib/pdf.ts
 import { PDFDocument, StandardFonts, rgb } from "pdf-lib"
 
 interface SanctionPDFParams {
@@ -209,7 +208,7 @@ export async function generateSanctionPDFSimple(
     userName: name,
     amount,
     tenure,
-    emi: 0, // Will need to be calculated
+    emi: 0,
     interestRate
   })
 }

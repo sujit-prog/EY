@@ -1,4 +1,3 @@
-// components/chat/StageIndicator.tsx
 import type { Stage } from "@/lib/memory";
 
 interface StageIndicatorProps {
@@ -13,13 +12,21 @@ const stages: { id: Stage; label: string; icon: string }[] = [
   { id: "sanctioned", label: "Approved", icon: "✅" },
 ];
 
+const normalizeStage = (stage: Stage): Stage => {
+  if (["welcome", "phone_request", "otp_verification"].includes(stage)) {
+    return "discovery";
+  }
+  return stage;
+};
+
 export function StageIndicator({ currentStage }: StageIndicatorProps) {
-  const currentIndex = stages.findIndex((s) => s.id === currentStage);
+  const normalizedStage = normalizeStage(currentStage);
+  const currentIndex = stages.findIndex((s) => s.id === normalizedStage);
 
   return (
     <div className="flex items-center gap-2 rounded-xl bg-slate-900/50 px-3 py-2 border border-slate-800">
       {stages.map((stage, index) => {
-        const isActive = stage.id === currentStage;
+        const isActive = stage.id === normalizedStage;
         const isCompleted = currentIndex > index;
         const isPending = currentIndex < index;
 

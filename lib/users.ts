@@ -1,5 +1,3 @@
-// lib/users.ts
-
 export interface PreviousLoan {
   loanName: string
   amount: number
@@ -22,7 +20,6 @@ export interface UserProfile {
 }
 
 export const users: Record<string, UserProfile> = {
-  // Customer 1: High Credit, No Previous Loans - Instant Approval Candidate
   "9876543210": {
     name: "Rahul Sharma",
     age: 32,
@@ -31,20 +28,19 @@ export const users: Record<string, UserProfile> = {
     email: "rahul.sharma@gmail.com",
     salary: 75000,
     creditScore: 820,
-    preApprovedLimit: 600000, // 6 lakhs
+    preApprovedLimit: 600000,
     previousLoans: []
   },
 
-  // Customer 2: Good Credit, One Previous Loan - Instant Approval
-  "9876543211": {
-    name: "Priya Nair",
+  "9337236782": {
+    name: "Dharmendra Mahanta",
     age: 28,
     location: "Mumbai",
-    phone: "9876543211",
+    phone: "9337236782",
     email: "priya.nair@outlook.com",
     salary: 60000,
     creditScore: 780,
-    preApprovedLimit: 450000, // 4.5 lakhs
+    preApprovedLimit: 450000,
     previousLoans: [
       {
         loanName: "Education Loan",
@@ -57,7 +53,6 @@ export const users: Record<string, UserProfile> = {
     ]
   },
 
-  // Customer 3: Excellent Credit, High Salary - Premium Customer
   "9876543212": {
     name: "Amit Patel",
     age: 38,
@@ -66,7 +61,7 @@ export const users: Record<string, UserProfile> = {
     email: "amit.patel@yahoo.com",
     salary: 125000,
     creditScore: 850,
-    preApprovedLimit: 1000000, // 10 lakhs
+    preApprovedLimit: 1000000,
     previousLoans: [
       {
         loanName: "Home Loan",
@@ -79,7 +74,6 @@ export const users: Record<string, UserProfile> = {
     ]
   },
 
-  // Customer 4: Moderate Credit, Needs Salary Slip Verification
   "9876543213": {
     name: "Sneha Reddy",
     age: 26,
@@ -88,11 +82,10 @@ export const users: Record<string, UserProfile> = {
     email: "sneha.reddy@gmail.com",
     salary: 45000,
     creditScore: 720,
-    preApprovedLimit: 250000, // 2.5 lakhs
+    preApprovedLimit: 250000,
     previousLoans: []
   },
 
-  // Customer 5: Low Credit Score - Rejection Candidate
   "9876543214": {
     name: "Vikram Singh",
     age: 35,
@@ -100,7 +93,7 @@ export const users: Record<string, UserProfile> = {
     phone: "9876543214",
     email: "vikram.singh@rediffmail.com",
     salary: 55000,
-    creditScore: 650, // Below 700 threshold
+    creditScore: 650,
     preApprovedLimit: 200000,
     previousLoans: [
       {
@@ -114,7 +107,6 @@ export const users: Record<string, UserProfile> = {
     ]
   },
 
-  // Customer 6: Good Profile, Multiple Loans
   "9876543215": {
     name: "Ananya Iyer",
     age: 31,
@@ -144,7 +136,6 @@ export const users: Record<string, UserProfile> = {
     ]
   },
 
-  // Customer 7: Young Professional, First Time Borrower
   "9876543216": {
     name: "Rohan Mehta",
     age: 24,
@@ -153,11 +144,10 @@ export const users: Record<string, UserProfile> = {
     email: "rohan.mehta@gmail.com",
     salary: 40000,
     creditScore: 750,
-    preApprovedLimit: 200000, // 2 lakhs
+    preApprovedLimit: 200000,
     previousLoans: []
   },
 
-  // Customer 8: Senior Professional, High Limit
   "9876543217": {
     name: "Deepak Kumar",
     age: 42,
@@ -166,7 +156,7 @@ export const users: Record<string, UserProfile> = {
     email: "deepak.kumar@hotmail.com",
     salary: 150000,
     creditScore: 830,
-    preApprovedLimit: 1200000, // 12 lakhs
+    preApprovedLimit: 1200000,
     previousLoans: [
       {
         loanName: "Home Loan",
@@ -179,7 +169,6 @@ export const users: Record<string, UserProfile> = {
     ]
   },
 
-  // Customer 9: Mid-Career, Border Case for Salary Slip
   "9876543218": {
     name: "Kavita Desai",
     age: 29,
@@ -188,7 +177,7 @@ export const users: Record<string, UserProfile> = {
     email: "kavita.desai@gmail.com",
     salary: 50000,
     creditScore: 740,
-    preApprovedLimit: 300000, // 3 lakhs
+    preApprovedLimit: 300000,
     previousLoans: [
       {
         loanName: "Two Wheeler Loan",
@@ -201,7 +190,6 @@ export const users: Record<string, UserProfile> = {
     ]
   },
 
-  // Customer 10: Excellent Credit, Low Utilization - Ideal Customer
   "9876543219": {
     name: "Arjun Malhotra",
     age: 36,
@@ -210,26 +198,23 @@ export const users: Record<string, UserProfile> = {
     email: "arjun.malhotra@outlook.com",
     salary: 95000,
     creditScore: 810,
-    preApprovedLimit: 750000, // 7.5 lakhs
+    preApprovedLimit: 750000,
     previousLoans: []
   }
 }
 
-// Helper function to get user by phone
 export function getUserByPhone(phone: string): UserProfile | null {
   return users[phone] || null
 }
 
-// Helper function to get all users (for testing)
 export function getAllUsers(): UserProfile[] {
   return Object.values(users)
 }
 
-// Export user scenarios for testing
 export const testScenarios = {
-  instantApproval: ["9876543210", "9876543211", "9876543212"], // Within pre-approved limit
-  salarySlipRequired: ["9876543213", "9876543218"], // Amount between 1x-2x limit
-  rejection_lowCredit: ["9876543214"], // Credit score < 700
-  rejection_highAmount: ["9876543216"], // Amount > 2x pre-approved limit (if requests 5+ lakhs)
-  premium: ["9876543212", "9876543217", "9876543219"] // High limit, excellent credit
+  instantApproval: ["9876543210", "9876543211", "9876543212"],
+  salarySlipRequired: ["9876543213", "9876543218"],
+  rejection_lowCredit: ["9876543214"],
+  rejection_highAmount: ["9876543216"], 
+  premium: ["9876543212", "9876543217", "9876543219"]
 }

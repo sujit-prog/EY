@@ -1,12 +1,10 @@
-// loan/chat/page.tsx
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
 import { ChatShell } from '@/components/chat/ChatShell'
 
-/* ---------------- TYPES ---------------- */
 type Role = 'user' | 'assistant' | 'system'
-type Stage = 'discovery' | 'sales' | 'verification' | 'underwriting' | 'sanctioned'
+type Stage = 'welcome' | 'phone_request' | 'otp_verification' | 'discovery' | 'sales' | 'verification' | 'underwriting' | 'sanctioned'
 
 interface ChatMessage {
   id: string
@@ -17,107 +15,120 @@ interface ChatMessage {
   agentLabel?: string
 }
 
-interface VerificationDoc {
-  id: string
-  label: string
-  required: boolean
-  allowedTypes: string[]
-  uploaded: boolean
-}
-
 interface OfferLetter {
   fileName: string
   contentBase64: string
 }
 
-/* ---------------- COMPONENT ---------------- */
 export default function ChatPage() {
-  /* ---------- LOCAL MEMORY ---------- */
+  const [sessionId] = useState(() => {
+    if (typeof window !== 'undefined') {
+      let id = localStorage.getItem('chat_session_id')
+      if (!id) {
+        id = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+        localStorage.setItem('chat_session_id', id)
+      }
+      return id
+    }
+    return 'default_session'
+  })
+
   const load = <T,>(key: string, fallback: T): T => {
     if (typeof window === 'undefined') return fallback
-    return JSON.parse(localStorage.getItem(key) || 'null') ?? fallback
+    const stored = localStorage.getItem(key)
+    return stored ? JSON.parse(stored) : fallback
   }
 
   const save = (key: string, value: any) => {
-    localStorage.setItem(key, JSON.stringify(value))
+    if (typeof window !== 'undefined') {
+      localStorage.setItem(key, JSON.stringify(value))
+    }
   }
 
-  /* ---------- STATE ---------- */
-  const [messages, setMessages] = useState<ChatMessage[]>(
-    load('chat_messages', [
-      {
-        id: crypto.randomUUID(),
-        role: 'assistant',
-        content: 'Hello! Welcome to the Tata Capital Personal Loan Assistant. How may I assist you with your financial needs today?',
-        timestamp: new Date().toLocaleTimeString(),
-        agentLabel: 'Master Agent'
-      }
-    ])
+  const [messages, setMessages] = useState<ChatMessage[]>(() => 
+    load('chat_messages', [])
   )
 
   const [input, setInput] = useState('')
   const [isLoading, setIsLoading] = useState(false)
-  const [currentStage, setCurrentStage] = useState<Stage>(
-    load('chat_stage', 'discovery')
+  const [currentStage, setCurrentStage] = useState<Stage>(() => 
+    load('chat_stage', 'welcome')
   )
 
-  const [verificationDocs, setVerificationDocs] =
-    useState<VerificationDoc[] | null>(null)
+  const [showDocumentUpload, setShowDocumentUpload] = useState(false)
+  const [requireSalarySlip, setRequireSalarySlip] = useState(false)
+  const [documentsUploaded, setDocumentsUploaded] = useState({
+    aadhaar: false,
+    pan: false,
+    salary_slip: false
+  })
 
-  const [offerLetter, setOfferLetter] =
-    useState<OfferLetter | null>(null)
-
-  const [lowLevelError, setLowLevelError] =
-    useState<string | null>(null)
-
-  const [agentTransition, setAgentTransition] =
-    useState<string | null>(null)
+  const [offerLetter, setOfferLetter] = useState<OfferLetter | null>(null)
+  const [lowLevelError, setLowLevelError] = useState<string | null>(null)
+  const [agentTransition, setAgentTransition] = useState<string | null>(null)
+  const [storedPhone, setStoredPhone] = useState<string | null>(() => 
+    load('user_phone', null)
+  )
 
   const messagesEndRef = useRef<HTMLDivElement>(null)
+  const hasInitialized = useRef(false)
+  const underwritingProcessed = useRef(false)
 
-  /* ---------- AUTO SCROLL ---------- */
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages])
 
-  /* ---------- SAVE MEMORY ---------- */
   useEffect(() => {
     save('chat_messages', messages)
     save('chat_stage', currentStage)
   }, [messages, currentStage])
 
-  /* ---------- STAGE-AWARE SUGGESTIONS ---------- */
+  useEffect(() => {
+    if (hasInitialized.current) return
+    hasInitialized.current = true
+
+    if (messages.length === 0) {
+      sendMessage('Hello', true)
+    }
+  }, [])
+
   const getSuggestions = () => {
     switch (currentStage) {
+      case 'welcome':
+      case 'phone_request':
+        return []
+      case 'otp_verification':
+        return []
       case 'discovery':
-        return ['I need a loan', 'Personal loan for ₹3 lakhs', 'Education loan']
+        return ['I need a loan', 'I need ₹3 lakhs for education', 'Home renovation']
       case 'sales':
-        return ["Can I see a shorter tenure?', 'What's the total cost?', 'Yes, let's proceed"]
+        return ['Can we do 36 months?', 'What about 60 months?', 'Okay, let\'s proceed']
       case 'verification':
-        return ['Why do you need these documents?', 'Is my data secure?']
+        return ['Why do you need these?', 'Is my data secure?']
       case 'underwriting':
-        return ['How long will this take?', 'What are you checking?']
+        return []
       default:
         return []
     }
   }
 
-  /* ---------- SEND MESSAGE ---------- */
-  const sendMessage = async () => {
-    const text = input.trim()
-    if (!text || isLoading) return
+  const sendMessage = async (text?: string, isInitial = false) => {
+    const messageText = text || input.trim()
+    if (!messageText || isLoading) return
 
     setLowLevelError(null)
     setAgentTransition(null)
 
-    const userMsg: ChatMessage = {
-      id: crypto.randomUUID(),
-      role: 'user',
-      content: text,
-      timestamp: new Date().toLocaleTimeString()
+    if (!isInitial) {
+      const userMsg: ChatMessage = {
+        id: crypto.randomUUID(),
+        role: 'user',
+        content: messageText,
+        timestamp: new Date().toLocaleTimeString()
+      }
+      setMessages(prev => [...prev, userMsg])
     }
 
-    setMessages(prev => [...prev, userMsg])
     setInput('')
     setIsLoading(true)
 
@@ -126,120 +137,190 @@ export default function ChatPage() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          message: text,
-          stage: currentStage,
-          phone: '9876543210'
+          message: messageText,
+          sessionId,
+          phone: storedPhone
         })
       })
 
-      if (!res.ok) throw new Error()
+      if (!res.ok) throw new Error('Network error')
 
       const data = await res.json()
 
-      // Determine agent label based on stage
+      if (data.silentAck) {
+        setMessages(prev => prev.slice(0, -1))
+        setIsLoading(false)
+        return
+      }
+
       const getAgentLabel = (stage: Stage) => {
         switch (stage) {
-          case 'discovery': return 'Master Agent'
-          case 'sales': return 'Sales Agent'
-          case 'verification': return 'Verification Agent'
-          case 'underwriting': return 'Underwriting Agent'
-          case 'sanctioned': return 'Master Agent'
-          default: return 'Agent'
+          case 'welcome':
+          case 'phone_request':
+          case 'otp_verification':
+          case 'discovery':
+          case 'sanctioned':
+            return 'Master Agent'
+          case 'sales':
+            return 'Sales Agent'
+          case 'verification':
+            return 'Verification Agent'
+          case 'underwriting':
+            return 'Underwriting Agent'
+          default:
+            return 'Agent'
         }
       }
 
-      setMessages(prev => [
-        ...prev,
-        {
-          id: crypto.randomUUID(),
-          role: 'assistant',
-          content: data.reply,
-          timestamp: new Date().toLocaleTimeString(),
-          agentLabel: getAgentLabel(data.nextStage || currentStage)
-        }
-      ])
-
-      if (data.nextStage) {
-        setCurrentStage(data.nextStage)
-        
-        // Show agent transition notification
-        if (data.agentTransition) {
-          setAgentTransition(data.agentTransition)
-          setTimeout(() => setAgentTransition(null), 3000)
-        }
-      }
-      
-      if (data.verificationDocs) setVerificationDocs(data.verificationDocs)
-      if (data.offerLetter) setOfferLetter(data.offerLetter)
-
-    } catch {
-      setLowLevelError('Something went wrong. Please try again.')
-    }
-
-    setIsLoading(false)
-  }
-
-  /* ---------- AUTO MOVE AFTER DOC UPLOAD ---------- */
-  useEffect(() => {
-    if (
-      currentStage === 'verification' &&
-      verificationDocs?.every(d => d.uploaded)
-    ) {
-      // Simulate document verification
-      setTimeout(() => {
+      if (data.reply) {
         setMessages(prev => [
           ...prev,
           {
             id: crypto.randomUUID(),
             role: 'assistant',
-            content: 'Identity Verified ✅ Thank you. We are now checking your eligibility...',
+            content: data.reply,
             timestamp: new Date().toLocaleTimeString(),
-            agentLabel: 'Verification Agent'
+            agentLabel: getAgentLabel(data.stage || currentStage)
           }
         ])
+      }
 
-        setCurrentStage('underwriting')
-        setVerificationDocs(null)
+      if (data.stage) {
+        setCurrentStage(data.stage)
+      }
+      
+      if (data.nextStage) {
+        setCurrentStage(data.nextStage)
+      }
+      
+      if (data.agentTransition) {
+        setAgentTransition(data.agentTransition)
+        setTimeout(() => setAgentTransition(null), 3000)
+      }
 
-        // Simulate underwriting process
-        setTimeout(async () => {
-          try {
-            const res = await fetch('/api/chat', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                message: 'start_underwriting',
-                stage: 'underwriting',
-                phone: '9876543210'
-              })
-            })
+      if (data.showDocumentUpload) {
+        setTimeout(() => {
+          setShowDocumentUpload(true)
+          setRequireSalarySlip(data.requireSalarySlip || false)
+        }, 800)
+      }
 
-            const data = await res.json()
+      if (data.skipPhoneCollection && data.userProfile) {
+        setStoredPhone(data.userProfile.phone)
+        save('user_phone', data.userProfile.phone)
+      }
 
-            setMessages(prev => [
-              ...prev,
-              {
-                id: crypto.randomUUID(),
-                role: 'assistant',
-                content: data.reply,
-                timestamp: new Date().toLocaleTimeString(),
-                agentLabel: 'Underwriting Agent'
-              }
-            ])
+      if (data.offerLetter) {
+        setOfferLetter(data.offerLetter)
+      }
 
-            if (data.offerLetter) {
-              setCurrentStage('sanctioned')
-              setOfferLetter(data.offerLetter)
-            }
-          } catch {
-            setLowLevelError('Underwriting failed. Please try again.')
-          }
-        }, 2000)
-      }, 1000)
+    } catch (error) {
+      setLowLevelError('Something went wrong. Please try again.')
+      console.error('Chat error:', error)
     }
-  }, [verificationDocs, currentStage])
 
-  /* ---------- PDF DOWNLOAD ---------- */
+    setIsLoading(false)
+  }
+
+  useEffect(() => {
+    const requiredDocs = requireSalarySlip 
+      ? ['aadhaar', 'pan', 'salary_slip']
+      : ['aadhaar', 'pan']
+    
+    const allRequiredDocsUploaded = requiredDocs.every(doc => 
+      documentsUploaded[doc as keyof typeof documentsUploaded]
+    )
+    
+    if (allRequiredDocsUploaded && currentStage === 'verification' && showDocumentUpload && !underwritingProcessed.current) {
+      console.log('📄 All documents uploaded, transitioning to underwriting...')
+      
+      underwritingProcessed.current = true
+      
+      setShowDocumentUpload(false)
+      
+      setAgentTransition("Routing to Underwriting Agent")
+      setTimeout(() => setAgentTransition(null), 3000)
+      
+      const processingMsg: ChatMessage = {
+        id: crypto.randomUUID(),
+        role: 'assistant',
+        content: "Documents received. Processing your application...",
+        timestamp: new Date().toLocaleTimeString(),
+        agentLabel: 'Underwriting Agent'
+      }
+      setMessages(prev => [...prev, processingMsg])
+      
+      setCurrentStage('underwriting')
+      
+      setTimeout(() => processUnderwriting(), 1500)
+    }
+  }, [documentsUploaded, currentStage, showDocumentUpload, requireSalarySlip])
+
+  const processUnderwriting = async () => {
+    console.log('🔄 Processing underwriting...', {
+      sessionId,
+      storedPhone,
+      salarySlipUploaded: documentsUploaded.salary_slip
+    })
+    
+    setIsLoading(true)
+    
+    try {
+      const res = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          message: 'process_underwriting',
+          sessionId,
+          phone: storedPhone,
+          salarySlipUploaded: documentsUploaded.salary_slip
+        })
+      })
+
+      if (!res.ok) {
+        throw new Error(`HTTP error! status: ${res.status}`)
+      }
+
+      const data = await res.json()
+      console.log('✅ Underwriting response:', data)
+
+      if (data.reply) {
+        setMessages(prev => [
+          ...prev,
+          {
+            id: crypto.randomUUID(),
+            role: 'assistant',
+            content: data.reply,
+            timestamp: new Date().toLocaleTimeString(),
+            agentLabel: data.stage === 'sanctioned' ? 'Master Agent' : 'Underwriting Agent'
+          }
+        ])
+      }
+
+      if (data.stage) {
+        setCurrentStage(data.stage)
+      }
+
+      if (data.nextStage) {
+        setCurrentStage(data.nextStage)
+      }
+
+      if (data.offerLetter) {
+        setOfferLetter(data.offerLetter)
+      }
+
+      if (data.agentTransition) {
+        setAgentTransition(data.agentTransition)
+        setTimeout(() => setAgentTransition(null), 3000)
+      }
+    } catch (error) {
+      console.error('❌ Underwriting failed:', error)
+      setLowLevelError('Underwriting failed. Please try again.')
+    }
+    
+    setIsLoading(false)
+  }
+
   const downloadOfferLetter = () => {
     if (!offerLetter) return
 
@@ -261,10 +342,8 @@ export default function ChatPage() {
     URL.revokeObjectURL(url)
   }
 
-  /* ---------- UI ---------- */
   return (
     <div className="relative">
-      {/* Agent Transition Notification */}
       {agentTransition && (
         <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 bg-blue-500 text-white px-4 py-2 rounded-full shadow-lg text-sm animate-fade-in">
           🔄 {agentTransition}
@@ -275,7 +354,7 @@ export default function ChatPage() {
         messages={messages}
         input={input}
         setInput={setInput}
-        sendMessage={sendMessage}
+        sendMessage={() => sendMessage()}
         isLoading={isLoading}
         suggestions={getSuggestions()}
         onSuggestionClick={setInput}
@@ -283,8 +362,7 @@ export default function ChatPage() {
         lowLevelError={lowLevelError}
       />
 
-      {/* ---------- DOCUMENT UPLOAD MODAL ---------- */}
-      {currentStage === 'verification' && verificationDocs && (
+      {showDocumentUpload && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm">
           <div className="w-full max-w-md rounded-2xl bg-gradient-to-br from-slate-900 to-slate-800 p-6 shadow-2xl border border-slate-700">
             <h3 className="mb-4 text-lg font-semibold text-white flex items-center gap-2">
@@ -293,63 +371,131 @@ export default function ChatPage() {
             </h3>
 
             <p className="text-sm text-slate-300 mb-4">
-              Please upload the following documents to verify your identity and proceed with the loan application.
+              Please upload your KYC documents to proceed with verification.
             </p>
 
             <div className="space-y-3">
-              {verificationDocs.map(doc => (
-                <div 
-                  key={doc.id} 
-                  className="flex items-center justify-between p-3 bg-slate-800/50 rounded-lg border border-slate-700"
-                >
+              <div className="flex items-center justify-between p-3 bg-slate-800/50 rounded-lg border border-slate-700">
+                <div className="flex items-center gap-3">
+                  {documentsUploaded.aadhaar ? (
+                    <span className="text-2xl">✅</span>
+                  ) : (
+                    <span className="text-2xl">📎</span>
+                  )}
+                  <span className="text-sm text-slate-200 font-medium">
+                    Aadhaar Card
+                  </span>
+                </div>
+
+                <label>
+                  <input
+                    type="file"
+                    hidden
+                    accept="image/*,.pdf"
+                    disabled={documentsUploaded.aadhaar}
+                    onChange={() =>
+                      setDocumentsUploaded(prev => ({
+                        ...prev,
+                        aadhaar: true
+                      }))
+                    }
+                  />
+                  <span className={`cursor-pointer text-xs px-3 py-1 rounded-full ${
+                    documentsUploaded.aadhaar
+                      ? 'bg-emerald-500/20 text-emerald-300' 
+                      : 'bg-blue-500/20 text-blue-300 hover:bg-blue-500/30'
+                  }`}>
+                    {documentsUploaded.aadhaar ? 'Uploaded' : 'Upload'}
+                  </span>
+                </label>
+              </div>
+
+              <div className="flex items-center justify-between p-3 bg-slate-800/50 rounded-lg border border-slate-700">
+                <div className="flex items-center gap-3">
+                  {documentsUploaded.pan ? (
+                    <span className="text-2xl">✅</span>
+                  ) : (
+                    <span className="text-2xl">📎</span>
+                  )}
+                  <span className="text-sm text-slate-200 font-medium">
+                    PAN Card
+                  </span>
+                </div>
+
+                <label>
+                  <input
+                    type="file"
+                    hidden
+                    accept="image/*"
+                    disabled={documentsUploaded.pan}
+                    onChange={() =>
+                      setDocumentsUploaded(prev => ({
+                        ...prev,
+                        pan: true
+                      }))
+                    }
+                  />
+                  <span className={`cursor-pointer text-xs px-3 py-1 rounded-full ${
+                    documentsUploaded.pan
+                      ? 'bg-emerald-500/20 text-emerald-300' 
+                      : 'bg-blue-500/20 text-blue-300 hover:bg-blue-500/30'
+                  }`}>
+                    {documentsUploaded.pan ? 'Uploaded' : 'Upload'}
+                  </span>
+                </label>
+              </div>
+
+              {requireSalarySlip && (
+                <div className="flex items-center justify-between p-3 bg-amber-500/10 rounded-lg border border-amber-500/30">
                   <div className="flex items-center gap-3">
-                    {doc.uploaded ? (
+                    {documentsUploaded.salary_slip ? (
                       <span className="text-2xl">✅</span>
                     ) : (
                       <span className="text-2xl">📎</span>
                     )}
-                    <span className="text-sm text-slate-200 font-medium">
-                      {doc.label}
-                    </span>
+                    <div>
+                      <span className="text-sm text-slate-200 font-medium block">
+                        Latest Salary Slip
+                      </span>
+                      <span className="text-[10px] text-amber-300">
+                        Required (amount exceeds limit)
+                      </span>
+                    </div>
                   </div>
 
                   <label>
                     <input
                       type="file"
                       hidden
-                      accept={doc.allowedTypes.join(',')}
-                      disabled={doc.uploaded}
+                      accept=".pdf"
+                      disabled={documentsUploaded.salary_slip}
                       onChange={() =>
-                        setVerificationDocs(prev =>
-                          prev!.map(d =>
-                            d.id === doc.id
-                              ? { ...d, uploaded: true }
-                              : d
-                          )
-                        )
+                        setDocumentsUploaded(prev => ({
+                          ...prev,
+                          salary_slip: true
+                        }))
                       }
                     />
                     <span className={`cursor-pointer text-xs px-3 py-1 rounded-full ${
-                      doc.uploaded 
+                      documentsUploaded.salary_slip
                         ? 'bg-emerald-500/20 text-emerald-300' 
-                        : 'bg-blue-500/20 text-blue-300 hover:bg-blue-500/30'
+                        : 'bg-amber-500/20 text-amber-300 hover:bg-amber-500/30'
                     }`}>
-                      {doc.uploaded ? 'Uploaded' : 'Upload'}
+                      {documentsUploaded.salary_slip ? 'Uploaded' : 'Upload'}
                     </span>
                   </label>
                 </div>
-              ))}
+              )}
             </div>
 
             <div className="mt-4 text-xs text-slate-400 flex items-start gap-2">
               <span>🔒</span>
-              <span>Your documents are encrypted and secure. We use industry-standard security protocols.</span>
+              <span>Your documents are encrypted with bank-grade security.</span>
             </div>
           </div>
         </div>
       )}
 
-      {/* ---------- OFFER LETTER MODAL ---------- */}
       {currentStage === 'sanctioned' && offerLetter && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm">
           <div className="w-full max-w-md rounded-2xl bg-gradient-to-br from-emerald-900 to-emerald-800 p-8 shadow-2xl border border-emerald-600">

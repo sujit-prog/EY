@@ -1,7 +1,7 @@
-// components/chat/ChatShell.tsx
 import { useEffect, useRef } from "react";
 import { StageIndicator } from "./StageIndicator";
 import { MessageBubble } from "./MessageBubble";
+import type { Stage } from "@/lib/memory";
 
 interface ChatMessage {
   id: string;
@@ -20,7 +20,7 @@ interface ChatShellProps {
   isLoading: boolean;
   suggestions: string[];
   onSuggestionClick: (text: string) => void;
-  currentStage: "discovery" | "sales" | "verification" | "underwriting" | "sanctioned";
+  currentStage: Stage;
   lowLevelError?: string | null;
 }
 
@@ -55,6 +55,10 @@ export function ChatShell({
   // Get stage display info
   const getStageInfo = () => {
     switch (currentStage) {
+      case "welcome":
+      case "phone_request":
+      case "otp_verification":
+        return { label: "Welcome", color: "from-blue-500/20 to-cyan-500/20", icon: "👋" };
       case "discovery":
         return { label: "Discovery", color: "from-blue-500/20 to-cyan-500/20", icon: "🔍" };
       case "sales":
@@ -65,6 +69,8 @@ export function ChatShell({
         return { label: "Underwriting", color: "from-indigo-500/20 to-blue-500/20", icon: "⚙️" };
       case "sanctioned":
         return { label: "Sanctioned", color: "from-emerald-500/20 to-green-500/20", icon: "✅" };
+      case "rejected":
+        return { label: "Review", color: "from-red-500/20 to-rose-500/20", icon: "❌" };
       default:
         return { label: "Chat", color: "from-slate-500/20 to-slate-500/20", icon: "💬" };
     }
@@ -103,15 +109,17 @@ export function ChatShell({
             </div>
           </div>
 
-          {/* Stage Indicator */}
-          <div className="flex items-center gap-2 rounded-xl bg-slate-950/60 p-3 border border-slate-800">
-            <span className="text-2xl">{stageInfo.icon}</span>
-            <div className="flex-1">
-              <p className="text-xs text-slate-400">Current Stage</p>
-              <p className="text-sm font-semibold text-slate-200">{stageInfo.label}</p>
+          {/* Stage Indicator - Only show after welcome stages */}
+          {!["welcome", "phone_request", "otp_verification"].includes(currentStage) && (
+            <div className="flex items-center gap-2 rounded-xl bg-slate-950/60 p-3 border border-slate-800">
+              <span className="text-2xl">{stageInfo.icon}</span>
+              <div className="flex-1">
+                <p className="text-xs text-slate-400">Current Stage</p>
+                <p className="text-sm font-semibold text-slate-200">{stageInfo.label}</p>
+              </div>
+              <StageIndicator currentStage={currentStage} />
             </div>
-            <StageIndicator currentStage={currentStage} />
-          </div>
+          )}
 
           {/* Chat area */}
           <div
