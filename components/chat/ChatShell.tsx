@@ -1,4 +1,7 @@
+"use client"
+
 import { useEffect, useRef } from "react";
+import { useState } from "react";
 import { StageIndicator } from "./StageIndicator";
 import { MessageBubble } from "./MessageBubble";
 import type { Stage } from "@/lib/memory";
@@ -36,6 +39,19 @@ export function ChatShell({
   lowLevelError,
 }: ChatShellProps) {
   const scrollRef = useRef<HTMLDivElement | null>(null);
+    const [selectedLanguage, setSelectedLanguage] = useState("English");
+    const [isLanguageDropdownOpen, setIsLanguageDropdownOpen] = useState(false);
+  
+    const languages = [
+      "English",
+      "ଓଡ଼ିଆ (Odia)",
+      "हिन्दी (Hindi)",
+      "தமிழ் (Tamil)",
+      "മലയാളം (Malayalam)",
+      "मराठी (Marathi)",
+      "ಕನ್ನಡ (Kannada)",
+      "বাংলা (Bengali)",
+    ];
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -96,16 +112,51 @@ export function ChatShell({
               </div>
               <div>
                 <p className="text-base font-bold text-slate-50">
-                  Tata Capital Loan Assistant
+                  TIARA
                 </p>
                 <p className="text-xs text-slate-400">
                   Powered by Multi-Agent AI System
                 </p>
               </div>
             </div>
-            <div className="flex items-center gap-2">
+            {/* <div className="flex items-center gap-2">
               <span className="h-2 w-2 animate-pulse rounded-full bg-emerald-400" />
               <span className="text-xs text-emerald-300">Live</span>
+            </div> */}
+                        <div className="relative">
+              <button
+                onClick={() => setIsLanguageDropdownOpen(!isLanguageDropdownOpen)}
+                className="flex items-center gap-2 rounded-full border border-slate-700 bg-slate-800/50 px-3 py-1.5 text-sm text-slate-300 hover:bg-slate-800"
+              >
+                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129" />
+                </svg>
+                <span>{selectedLanguage.split(" ")[0]}</span>
+                <svg className={`h-3 w-3 transition-transform ${isLanguageDropdownOpen ? "rotate-180" : ""}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+
+              {isLanguageDropdownOpen && (
+                <div className="absolute right-0 mt-2 w-48 rounded-xl border border-white/10 bg-slate-900 py-2 shadow-xl z-50">
+                  {languages.map((lang) => (
+                    <button
+                      key={lang}
+                      onClick={() => {
+                        setSelectedLanguage(lang);
+                        setIsLanguageDropdownOpen(false);
+                      }}
+                      className={`w-full px-4 py-2 text-left text-sm hover:bg-slate-800 ${
+                        selectedLanguage === lang
+                          ? "text-emerald-300"
+                          : "text-slate-300"
+                      }`}
+                    >
+                      {lang}
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
 

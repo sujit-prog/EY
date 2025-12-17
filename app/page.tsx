@@ -114,12 +114,12 @@ export default function LandingPage() {
 
           {/* CTAs */}
           <div className="flex flex-wrap items-center gap-4">
-            <a
-              href="#chat"
+            <Link
+              href="/loan/chat"
               className="rounded-full bg-emerald-400 px-6 py-2.5 text-sm font-semibold text-slate-950 shadow-lg shadow-emerald-500/40 hover:bg-emerald-300"
             >
               Start your loan journey
-            </a>
+            </Link>
           </div>
 
           {/* Stats */}

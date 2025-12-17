@@ -108,7 +108,7 @@ export async function POST(req: NextRequest) {
       mem.welcomed = true
       mem.stage = "phone_request"
       
-      const reply = "Hello! Welcome to the Tata Capital Personal Loan Assistant.\n\nYour phone number is required to proceed to the next step. Please provide your 10-digit mobile number."
+      const reply = "Hello, I’m TIARA, Tata Capital’s intelligent agent designed to understand your requirements and seamlessly manage your loan journey end to end.\n\nYour phone number is required to proceed to the next step. Please provide your 10-digit mobile number."
       
       mem.conversationHistory.push({ role: "assistant", content: reply })
       return NextResponse.json({ reply, stage: "phone_request" })
