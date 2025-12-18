@@ -12,7 +12,7 @@ Built for **EY Techathon 6.0 - BFSI Challenge**
 ---
 
 ## 🎥 Demo Video
-👇 Click the thumbnail image to watch demo on youtube
+👇 Click the thumbnail image to watch video on youtube
 <a href="https://www.youtube.com/watch?v=Q7WrrYIBrxM">
   <img src="https://img.youtube.com/vi/Q7WrrYIBrxM/maxresdefault.jpg" alt="TIARA" width="560">
 </a>
@@ -33,10 +33,10 @@ Built for **EY Techathon 6.0 - BFSI Challenge**
 - [Test Scenarios](#test-scenarios)
 - [Project Structure](#project-structure)
 - [Team](#team)
+- [Contact](#contact)
 
 ---
-
-## 🎯 Overview
+## Overview
 
 **TIARA** (Tata Intelligent Agent for Real-world Agents) is a next-generation conversational AI system that transforms the personal loan sales process. Built on a multi-agent architecture, TIARA orchestrates specialized AI agents to deliver a seamless, human-like loan application experience from initial conversation to sanction letter generation.
 
@@ -48,7 +48,7 @@ Tata Capital, a leading NBFC, aims to increase personal loan sales through an AI
 
 ---
 
-## 🎪 Problem Statement
+## Problem Statement
 
 ### Business Objective
 Improve personal loan sales success rate through an AI-driven conversational approach that:
@@ -66,7 +66,7 @@ Improve personal loan sales success rate through an AI-driven conversational app
 
 ---
 
-## 🏗️ Solution Architecture
+## Solution Architecture
 ```
               ┌─────────────────────────────────────────────────────────────────┐
               │                          TIARA System                           │
@@ -97,7 +97,7 @@ Improve personal loan sales success rate through an AI-driven conversational app
 ```
 ---
 
-## 🤖 Agentic AI Workflow
+## Agentic AI Workflow
 
 ### Stage-by-Stage Journey
 
@@ -135,7 +135,7 @@ Improve personal loan sales success rate through an AI-driven conversational app
 
 ---
 
-## ✨ Key Features
+## Key Features
 
 ### 🎭 Multi-Agent Orchestration
 - **Master Agent** seamlessly coordinates 4 specialized worker agents
@@ -168,7 +168,7 @@ Approval Rules:
 
 ---
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 ### Frontend
 - **Next.js 16** - React framework with App Router
@@ -192,7 +192,7 @@ Approval Rules:
 
 ---
 
-## 🚀 Installation & Setup
+## Installation & Setup
 
 ### Prerequisites
 ```bash
@@ -236,7 +236,7 @@ npm start
 
 ---
 
-## 👤 User Journey
+## User Journey
 
 ### Step-by-Step Flow
 
@@ -277,7 +277,7 @@ npm start
 
 ---
 
-## 📐 Underwriting Logic
+## Underwriting Logic
 
 ### Approval Matrix
 
@@ -309,7 +309,7 @@ Scenario 3: ₹10 lakhs request
 
 ---
 
-## 🧪 Test Scenarios
+## Test Scenarios
 
 ### Pre-Configured Test Users
 
@@ -345,7 +345,7 @@ Expected: Rejected (exceeds 2× limit)
 
 ---
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 EY/
@@ -375,7 +375,7 @@ EY/
 
 ---
 
-## 👥 Team
+## Team
 
 **Team Name**: Veggies
 
@@ -394,7 +394,7 @@ EY/
 
 ---
 
-## 🎓 Key Learnings
+## Key Learnings
 
 ### Agentic AI Design Principles
 1. **Clear Agent Boundaries**: Each agent has a specific, well-defined role
@@ -413,7 +413,7 @@ EY/
 
 ---
 
-## 📊 Edge Cases Handled
+## Edge Cases Handled
 
 | Edge Case | Handling Strategy |
 |-----------|------------------|
@@ -427,7 +427,7 @@ EY/
 
 ---
 
-## 🔮 Future Enhancements
+## Future Enhancements
 
 - [ ] **Voice Integration**: Speech-to-text for hands-free interaction
 - [ ] **Live Credit Bureau API**: Real-time credit score fetching
@@ -440,13 +440,13 @@ EY/
 
 ---
 
-## 📞 Contact
+## Contact
 
 For queries regarding this project:
 
-**Email**: [your.email@example.com]  
-**LinkedIn**: [Your LinkedIn Profile]  
-**GitHub**: [Your GitHub Profile]
+**Email**: [dev.dharmendra.m@gmail.com](mailto:dev.dharmendra.m@gmail.com)  
+**LinkedIn**: [@dharmendram007](https://www.linkedin.com/in/dharmendram007/)  
+**GitHub**: [@dharmendra-007](https://github.com/dharmendra-007) 
 
 ---
 
