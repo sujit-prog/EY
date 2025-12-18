@@ -12,10 +12,10 @@ Built for **EY Techathon 6.0 - BFSI Challenge**
 ---
 
 ## 🎥 Demo Video
-
-<div align="center">
-  <iframe width="560" height="315" src="https://www.youtube.com/embed/Q7WrrYIBrxM?si=ZaYE4wzSLiNbyo_6" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
-</div>
+👇 Click the thumbnail image to watch demo on youtube
+<a href="https://www.youtube.com/watch?v=Q7WrrYIBrxM">
+  <img src="https://img.youtube.com/vi/Q7WrrYIBrxM/maxresdefault.jpg" alt="TIARA" width="560">
+</a>
 
 ---
 
