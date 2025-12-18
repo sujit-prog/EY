@@ -350,27 +350,31 @@ Expected: Rejected (exceeds 2× limit)
 ```
 EY/
 ├── app/
-│   ├── page.tsx              # Main chat interface
-│   ├── layout.tsx            # Root layout
-│   └── api/
+│   ├── page.tsx                 # Landing page
+│   ├── layout.tsx               # Root layout
+│   ├── api/
+│   │   └── chat/
+│   │       └── route.ts         # Multi-agent orchestration logic
+│   └── loan/
 │       └── chat/
-│           └── route.ts      # Multi-agent orchestration logic
+│           └── page.tsx         # Chatbot page route
 ├── components/
 │   └── chat/
-│       ├── ChatShell.tsx     # Main chat UI component
-│       ├── MessageBubble.tsx # Individual message rendering
-│       └── StageIndicator.tsx # Visual stage progress
+│       ├── ChatShell.tsx        # Main chat UI component
+│       ├── MessageBubble.tsx    # Individual message rendering
+│       ├── SuggestionChips.tsx  # Message suggestion
+│       └── StageIndicator.tsx   # Visual stage progress
 ├── lib/
-│   ├── users.ts              # Mock CRM data (10 customers)
-│   ├── prompts.ts            # Agent system prompts
-│   ├── emi.ts                # EMI calculation utilities
-│   ├── pdf.ts                # Sanction letter generator
-│   ├── memory.ts             # Session state management
-│   ├── loanConfig.ts         # Interest rates & terms
-│   └── openrouter.ts         # AI model configuration
-├── public/                   # Static assets
-├── .env.local               # Environment variables
-└── README.md                # This file
+│   ├── users.ts                 # Mock CRM data (10 customers)
+│   ├── prompts.ts               # Agent system prompts
+│   ├── emi.ts                   # EMI calculation utilities
+│   ├── pdf.ts                   # Sanction letter generator
+│   ├── memory.ts                # Session state management
+│   ├── loanConfig.ts            # Interest rates & terms
+│   └── openrouter.ts            # AI model configuration
+├── public/                      # Static assets
+├── .env.local                   # Environment variables
+└── README.md                    # This file
 ```
 
 ---
